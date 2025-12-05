@@ -1,0 +1,29 @@
+[package]
+name = "identity-service-api"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1.35"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+models = { path = "../models" }
+migration = { path = "../migration" }
+
+[dependencies.sea-orm]
+version = "~2.0.0-rc.20"
+features = [
+    "runtime-tokio-native-tls",
+    "sqlx-postgres",
+]
+
+[dev-dependencies]
+identity-service-api = { path = ".", features = ["sqlite"] }
+
+[features]
+sqlite = ["sea-orm/sqlx-sqlite"]
