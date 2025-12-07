@@ -21,6 +21,25 @@ cp .envrc.example .envrc
 direnv allow .
 ```
 
-
 ## Database migrations (sea-orm)
 Manage our database schema.
+
+Create a migration table
+```sh 
+sea-orm-cli migrate generate create_table_{my_table}
+```
+
+Run migration
+```sh
+# up
+cd migration && cargo run -- up
+
+# down
+cd migration && cargo run -- down
+```
+
+### Generate models
+```bash
+sea-orm-cli generate entity --output-dir ./models/src --lib --entity-format dense --with-serde both
+
+```

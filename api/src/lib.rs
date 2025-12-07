@@ -1,13 +1,18 @@
 use std::sync::Arc;
 
-use axum::{Router, routing::get};
+use axum::{
+    Router,
+    routing::{get, post},
+};
 use sea_orm::{Database, DatabaseConnection};
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
+pub mod dto;
 mod error;
-mod handlers;
+pub mod handlers;
+pub mod services;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -35,6 +40,7 @@ async fn start() -> anyhow::Result<()> {
     // Build routes
     let app = Router::new()
         .route("/health", get(|| async { "Ok" }))
+        .route("/users", post(handlers::register))
         .with_state(state);
 
     // Run server
