@@ -6,7 +6,8 @@ use axum::{
 };
 use sea_orm::{Database, DatabaseConnection};
 use tokio::net::TcpListener;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tower_http::trace::TraceLayer;
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
 pub mod dto;
@@ -24,7 +25,11 @@ async fn start() -> anyhow::Result<()> {
     // Init tracing
     tracing_subscriber::registry()
         .with(tracing_subscriber::fmt::layer())
-        .with(tracing_subscriber::EnvFilter::from_default_env())
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .or_else(|_| EnvFilter::try_new("identity_service_api=error,tower_http=warn"))
+                .unwrap(),
+        )
         .init();
 
     // Load config
@@ -41,6 +46,7 @@ async fn start() -> anyhow::Result<()> {
     let app = Router::new()
         .route("/health", get(|| async { "Ok" }))
         .route("/users", post(handlers::register))
+        .layer(TraceLayer::new_for_http())
         .with_state(state);
 
     // Run server
