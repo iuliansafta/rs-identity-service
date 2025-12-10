@@ -7,12 +7,15 @@ use models::*;
 use sea_orm::*;
 use uuid::Uuid;
 
-use crate::dto::CreateUser;
+use crate::dto::CreateOrLoginUserRequest;
 
 pub struct Mutations;
 
 impl Mutations {
-    pub async fn create_user(db: &DbConn, payload: CreateUser) -> Result<users::Model, DbErr> {
+    pub async fn create_user(
+        db: &DbConn,
+        payload: CreateOrLoginUserRequest,
+    ) -> Result<users::Model, DbErr> {
         let generated_id = Uuid::now_v7();
 
         let salt = SaltString::generate(&mut OsRng);

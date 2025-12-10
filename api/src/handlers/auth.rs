@@ -1,19 +1,19 @@
 use std::sync::Arc;
 
+use crate::validators::{ValidatedJson, ValidationError};
 use axum::extract::{Json, State};
 use serde_json::json;
 
 use crate::{
     AppState,
-    dto::{self, CreateUser},
-    error::AppError,
+    dto::{self, CreateOrLoginUserRequest},
     services,
 };
 
 pub async fn register(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<CreateUser>,
-) -> Result<Json<serde_json::Value>, AppError> {
+    ValidatedJson(payload): ValidatedJson<CreateOrLoginUserRequest>,
+) -> Result<Json<serde_json::Value>, ValidationError> {
     let user = services::Mutations::create_user(&state.db, payload)
         .await
         .expect("could not create the user");
@@ -24,4 +24,11 @@ pub async fn register(
     };
 
     Ok(Json(json!(response)))
+}
+
+pub async fn login(
+    State(state): State<Arc<AppState>>,
+    ValidatedJson(payload): ValidatedJson<CreateOrLoginUserRequest>,
+) -> Result<Json<serde_json::Value>, ValidationError> {
+    todo!()
 }

@@ -11,13 +11,14 @@ use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitEx
 
 mod config;
 pub mod dto;
-mod error;
 pub mod handlers;
 pub mod services;
+pub mod validators;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db: DatabaseConnection,
+    pub cfg: Arc<config::Config>,
 }
 
 #[tokio::main]
@@ -33,14 +34,17 @@ async fn start() -> anyhow::Result<()> {
         .init();
 
     // Load config
-    let config = config::Config::from_env()?;
+    let config = Arc::new(config::Config::from_env()?);
 
     // Connect to database
     let db = Database::connect(&config.database_url).await?;
     tracing::info!("Connected to database");
 
     // Create the state
-    let state = Arc::new(AppState { db });
+    let state = Arc::new(AppState {
+        db,
+        cfg: config.clone(),
+    });
 
     // Build routes
     let app = Router::new()

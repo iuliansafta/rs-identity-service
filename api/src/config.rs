@@ -2,6 +2,7 @@ use std::env;
 
 use anyhow::Ok;
 
+#[derive(Debug, Clone)]
 pub struct Config {
     pub database_url: String,
     pub host: String,
