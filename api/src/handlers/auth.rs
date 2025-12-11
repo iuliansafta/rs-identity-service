@@ -4,15 +4,11 @@ use crate::validators::{ValidatedJson, ValidationError};
 use axum::extract::{Json, State};
 use serde_json::json;
 
-use crate::{
-    AppState,
-    dto::{self, CreateOrLoginUserRequest},
-    services,
-};
+use crate::{AppState, dto, services};
 
 pub async fn register(
     State(state): State<Arc<AppState>>,
-    ValidatedJson(payload): ValidatedJson<CreateOrLoginUserRequest>,
+    ValidatedJson(payload): ValidatedJson<dto::CreateOrLoginUserRequest>,
 ) -> Result<Json<serde_json::Value>, ValidationError> {
     let user = services::Mutations::create_user(&state.db, payload)
         .await
@@ -28,7 +24,7 @@ pub async fn register(
 
 pub async fn login(
     State(state): State<Arc<AppState>>,
-    ValidatedJson(payload): ValidatedJson<CreateOrLoginUserRequest>,
+    ValidatedJson(payload): ValidatedJson<dto::CreateOrLoginUserRequest>,
 ) -> Result<Json<serde_json::Value>, ValidationError> {
     todo!()
 }

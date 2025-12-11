@@ -49,31 +49,6 @@ impl IntoResponse for ValidationError {
     }
 }
 
-fn validate_and_wrap<T: Validate>(value: T) -> Result<T, ValidationError> {
-    value.validate()?;
-    Ok(value)
-}
-
-#[derive(Debug, Clone, Copy, Default)]
-pub struct ValidatedJson<T>(pub T);
-
-impl<T, S> FromRequest<S> for ValidatedJson<T>
-where
-    T: DeserializeOwned + Validate,
-    S: Send + Sync,
-    JsonExtractor<T>: FromRequest<S, Rejection = JsonRejection>,
-{
-    type Rejection = ValidationError;
-
-    async fn from_request(
-        req: axum::http::Request<axum::body::Body>,
-        state: &S,
-    ) -> Result<Self, Self::Rejection> {
-        let JsonExtractor(value) = JsonExtractor::<T>::from_request(req, state).await?;
-        Ok(ValidatedJson(validate_and_wrap(value)?))
-    }
-}
-
 #[derive(Serialize)]
 struct ErrorMessage {
     code: String,
@@ -130,6 +105,32 @@ impl ValidationErrorResponse {
     }
 }
 
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ValidatedJson<T>(pub T);
+
+impl<T, S> FromRequest<S> for ValidatedJson<T>
+where
+    T: DeserializeOwned + Validate,
+    S: Send + Sync,
+    JsonExtractor<T>: FromRequest<S, Rejection = JsonRejection>,
+{
+    type Rejection = ValidationError;
+
+    async fn from_request(
+        req: axum::http::Request<axum::body::Body>,
+        state: &S,
+    ) -> Result<Self, Self::Rejection> {
+        let JsonExtractor(value) = JsonExtractor::<T>::from_request(req, state).await?;
+        Ok(ValidatedJson(validate_and_wrap(value)?))
+    }
+}
+
+fn validate_and_wrap<T: Validate>(value: T) -> Result<T, ValidationError> {
+    value.validate()?;
+    Ok(value)
+}
+
+// Helper modules
 pub mod utils {
     use validator::ValidationError;
     pub fn validate_password(pw: &str) -> Result<(), ValidationError> {
