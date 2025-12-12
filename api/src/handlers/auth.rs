@@ -27,6 +27,12 @@ pub async fn register(
     Ok(Json(json!(response)))
 }
 
+pub async fn init_login(
+    State(_): State<Arc<AppState>>,
+) -> Result<Json<serde_json::Value>, ValidationError> {
+    Ok(Json(json!("{\"cici\":\"done\"}")))
+}
+
 pub async fn login(
     State(state): State<Arc<AppState>>,
     ValidatedJson(payload): ValidatedJson<dto::AuthenticateUserRequest>,

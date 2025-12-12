@@ -50,6 +50,7 @@ async fn start() -> anyhow::Result<()> {
     let app = Router::new()
         .route("/health", get(|| async { "Ok" }))
         .route("/users", post(handlers::register))
+        .route("/auth/init", post(handlers::init_login))
         .route("/auth/login", post(handlers::login))
         .layer(TraceLayer::new_for_http())
         .with_state(state);
