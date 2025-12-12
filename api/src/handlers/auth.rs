@@ -42,7 +42,7 @@ pub async fn login(
     let parsed_hash = PasswordHash::new(&has_password)
         .map_err(|e| ValidationError::PasswordHashError(e.to_string()))?;
 
-    if !Argon2::default()
+    if Argon2::default()
         .verify_password(payload.code.as_bytes(), &parsed_hash)
         .is_ok()
     {

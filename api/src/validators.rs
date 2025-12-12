@@ -45,7 +45,7 @@ impl IntoResponse for ValidationError {
             )
                 .into_response(),
             ValidationError::BadRequest(_) => {
-                let payload = ErrorMessage::new("bad_request", format!("{}", self.to_string()));
+                let payload = ErrorMessage::new("bad_request", self.to_string());
                 tracing::error!("validation(400): {}", self.to_string());
                 (StatusCode::BAD_REQUEST, Json(payload)).into_response()
             }
