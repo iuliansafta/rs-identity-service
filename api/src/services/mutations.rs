@@ -15,7 +15,7 @@ impl Mutations {
     pub async fn create_user(
         db: &DbConn,
         payload: CreateOrLoginUserRequest,
-    ) -> Result<users::Model, DbErr> {
+    ) -> anyhow::Result<users::Model, DbErr> {
         let generated_id = Uuid::now_v7();
 
         let salt = SaltString::generate(&mut OsRng);

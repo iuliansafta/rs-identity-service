@@ -24,3 +24,19 @@ pub struct UserResponse {
 pub struct IdentityAuthRequest {
     pub identifier: String,
 }
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct AuthenticateUserRequest {
+    #[validate(email)]
+    pub identity: String,
+
+    #[validate(length(min = 4, max = 30))]
+    pub code: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct AuthenticatedUserResponse {
+    pub token: String,
+    pub refresh_token: String,
+    pub exp_time: i64,
+}

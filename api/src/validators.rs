@@ -19,8 +19,17 @@ pub enum ValidationError {
     #[error("bad request: {0}")]
     BadRequest(String),
 
+    #[error("Database error: {0}")]
+    Database(#[from] sea_orm::DbErr),
+
+    #[error("Password hashing error: {0}")]
+    PasswordHashError(String),
+
     #[error("Internal Error")]
     Internal(#[from] anyhow::Error),
+
+    #[error("JWT error: {0}")]
+    JwtError(String),
 }
 
 impl IntoResponse for ValidationError {
@@ -36,7 +45,7 @@ impl IntoResponse for ValidationError {
             )
                 .into_response(),
             ValidationError::BadRequest(_) => {
-                let payload = ErrorMessage::new("internal_error", "Something went wrong");
+                let payload = ErrorMessage::new("bad_request", format!("{}", self.to_string()));
                 tracing::error!("validation(400): {}", self.to_string());
                 (StatusCode::BAD_REQUEST, Json(payload)).into_response()
             }
