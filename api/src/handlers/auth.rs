@@ -2,9 +2,9 @@ use argon2::{
     Argon2,
     password_hash::{PasswordHash, PasswordVerifier},
 };
-use std::sync::Arc;
+use chrono::{DateTime, Utc};
+use std::{sync::Arc, time::SystemTime};
 
-use crate::services::JwtService;
 use crate::validators::{ValidatedJson, ValidationError};
 use axum::extract::{Json, State};
 use serde_json::json;
@@ -30,7 +30,8 @@ pub async fn register(
 pub async fn init_login(
     State(_): State<Arc<AppState>>,
 ) -> Result<Json<serde_json::Value>, ValidationError> {
-    Ok(Json(json!("{\"cici\":\"done\"}")))
+    // let auth_method = services::Queries
+    todo!()
 }
 
 pub async fn login(
@@ -50,20 +51,24 @@ pub async fn login(
 
     if Argon2::default()
         .verify_password(payload.code.as_bytes(), &parsed_hash)
-        .is_ok()
+        .is_err()
     {
         return Err(ValidationError::BadRequest(INVALID_CREDENTIALS.to_string()));
     }
 
-    let jwt = JwtService::new(state.cfg.jwt_secret.as_str());
-    let token = jwt
-        .generate_access_token(user.id.to_string(), user.email)
+    let token = state
+        .jwt_service
+        .generate_token_for_user(user.id.to_string(), user.email)
         .map_err(|e| ValidationError::JwtError(e.to_string()))?;
 
+    let now = SystemTime::now();
+    let dt_utc: DateTime<Utc> = now.into();
+
     let response = dto::AuthenticatedUserResponse {
-        token,
-        refresh_token: "".to_string(),
-        exp_time: 1233434,
+        access_token: token.access_token,
+        refresh_token: token.refresh_token,
+        exp_time: token.expires_in,
+        issued_at: dt_utc.timestamp(),
     };
 
     Ok(Json(json!(response)))

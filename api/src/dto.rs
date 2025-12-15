@@ -1,6 +1,7 @@
-use crate::validators;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+
+use crate::validators;
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateOrLoginUserRequest {
@@ -36,7 +37,8 @@ pub struct AuthenticateUserRequest {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct AuthenticatedUserResponse {
-    pub token: String,
+    pub access_token: String,
     pub refresh_token: String,
-    pub exp_time: i64,
+    pub exp_time: u64,
+    pub issued_at: i64,
 }

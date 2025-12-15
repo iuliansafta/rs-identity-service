@@ -19,6 +19,7 @@ pub mod validators;
 pub struct AppState {
     pub db: DatabaseConnection,
     pub cfg: Arc<config::Config>,
+    pub jwt_service: services::JwtService,
 }
 
 #[tokio::main]
@@ -34,7 +35,7 @@ async fn start() -> anyhow::Result<()> {
         .init();
 
     // Load config
-    let config = Arc::new(config::Config::from_env()?);
+    let config = Arc::new(config::Config::load()?);
 
     // Connect to database
     let db = Database::connect(&config.database_url).await?;
@@ -44,6 +45,7 @@ async fn start() -> anyhow::Result<()> {
     let state = Arc::new(AppState {
         db,
         cfg: config.clone(),
+        jwt_service: services::JwtService::new(&config),
     });
 
     // Build routes
