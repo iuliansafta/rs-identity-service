@@ -45,7 +45,11 @@ async fn start() -> anyhow::Result<()> {
     let state = Arc::new(AppState {
         db,
         cfg: config.clone(),
-        jwt_service: services::JwtService::new(&config),
+        jwt_service: services::JwtService::new(
+            config.jwt_private_key.as_str(),
+            config.jwt_public_key.as_str(),
+            config.jwt_key_source.clone(),
+        ),
     });
 
     // Build routes

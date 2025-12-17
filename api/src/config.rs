@@ -44,8 +44,8 @@ impl fmt::Display for Environment {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum KeySource {
-    File,
-    EnvVar,
+    Rsa,
+    Hmac,
 }
 
 impl KeySource {
@@ -55,9 +55,9 @@ impl KeySource {
             .to_lowercase()
             .as_str()
         {
-            "file" => KeySource::File,
-            "env" => KeySource::EnvVar,
-            _ => KeySource::File,
+            "rsa" => KeySource::Rsa,
+            "hmac" => KeySource::Hmac,
+            _ => KeySource::Hmac,
         }
     }
 }
